@@ -4,21 +4,25 @@ from tabulate import tabulate
 import re
 from robot.api import logger
 my_dataframe = {
-        'table': ['table_1', 'table_1', 'table_1', 'table_1', 'table_1'],
-        'column': ['col_1', 'col_2', 'col_3', 'col_4', 'col_5'],
+        'table': ['table_1', 'table_1', 'table_1', 'table_1', 'table_1', 'table_1', 'table_1'],
+        'column': ['col_1', 'col_2', 'col_3', 'col_4', 'col_5', 'col_6', 'col_7'],
         'th_sum': [
             'pre_client_id:[102:1810.5%, 201:3100.0%, 202:3100.0%, ELSE:3100.0% ]',
             np.NaN,
             'S',
-            'pr294[10]da:[1509:2.5%, [1599, 6034]:5%, 6016:20%]',
-            np.NaN
+            'pr294[10]da:[1509:2.5%, [1599 ,6034]:5%, 6016:20%]',
+            np.NaN,
+            'pr294[10]da:[1509:2.5%, [1599, 6034]:5%, 6016:20%', #Lack of ']' at the end
+            'pr294[10]da:[1509:2.5%, [1599, 6034]:5%, 6016:20%],' # Comma as the last character
         ],
         'th_null': [
             np.NaN, 
             'pre_client_id:[107:111.5%, 21:3.0%, 2:1.0%, ELSE:6.0% ]',
             'Y',
             np.NaN,
-            '[block_code[20]client_id:[102:70%, 202:45%, 302:55%], block_code[50]client_id:[102:15%, 202:35%, 302:35%]]'
+            '[block_code[20]client_id:[102:70%, 202:45%, 302:55%], block_code[50]client_id:[102:15%, 202:35%, 302:35%]]',
+            '[block_code[]client_id:[102:70%, 202:45%, 302:55%], block_code[50]client_id:[102:15%, 202:35%, 302:35%]]', #empty variable attribute
+            '[block_code[ad]client_id:[102:70%, 202:45%, 302:55%], block_code[50]client_id:[102:15%, 202:35%, 302:35%],]' #Comma after the last item
         ]
 }
 
@@ -63,7 +67,7 @@ threshold_variable_partition_json_output_example = {
 my_dataframe = pd.DataFrame(my_dataframe)
 
 def recognize_threshold_var_partition(input_string):
-    var_with_value_and_partition_pattern = r'(?P<variable>\w+)\[(?P<variable_att>.*?)\](?P<partition>\w+)'
+    var_with_value_and_partition_pattern = r'(?P<variable>\w+)\[(?P<variable_att>\w+)\](?P<partition>\w+)'
     match = re.match(var_with_value_and_partition_pattern, input_string)
     if match:
         return (True, match)
@@ -97,7 +101,6 @@ def validate_partition_attributes(partition_attributes):
     #     \]$                                                                                                     # Part 5
     # """, re.VERBOSE) # TODO - Try to use this approach when it will be possible
     match = re.match(combined_pattern, partition_attributes)
-    # print(f'PARTITION ATTRIBUTES: {partition_attributes} MATCH: {match}')
     partition_details_list = []
     if match:
         # Extract detected values
@@ -210,7 +213,7 @@ print('---Input dataframe---')
 print(tabulate(my_dataframe,tablefmt='grid',headers='keys', maxcolwidths=40))
 columns_to_check = ['th_sum','th_null']
 print('---Detect variable level logic masking---')
-# Create a boolean mask using the function and apply it to the specified columns
+# map detect_variable level logic element-wise
 mask = my_dataframe[columns_to_check].map(detect_variable_level_logic)
 print('---table with applyied logic---')
 my_dataframe[columns_to_check] = mask
