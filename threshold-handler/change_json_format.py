@@ -1,4 +1,5 @@
 import pandas as pd
+from typing import Literal
 import json
 
 
@@ -10,14 +11,16 @@ def read_json_file(file_path: str) -> dict:
         data = json.load(f)
     return data
 
-def change_json_structure(input_data: list, pattern: str) -> dict:
+
+
+def change_json_structure(input_data: list, pattern: Literal['variable_with_attributes_and_partition_with_attributes','partition_with_attributes']) -> dict:
     """
     This function converts list of dictionaries into a json format
     for given pattern.
 
     Example:
     Input:
-        pattern = "variable_with_attributes_and_partition_with_attributes"
+        pattern = "variable_with_attributes_and_partition_with_attributes" \n
         input_sample = [
             {
                 "partition_attribute": 102,
@@ -76,15 +79,28 @@ def change_json_structure(input_data: list, pattern: str) -> dict:
     """
 
     df = pd.DataFrame(input_data)
+    try:
+        threshold_value_else = df.loc[df["partition_attribute"] == "ELSE", "threshold_value"].values[0]
+        else_dict = {"ELSE": threshold_value_else}
+        df = df[df["partition_attribute"] != "ELSE"]
+    except IndexError:
+        else_dict = {}
 
-    # group df by variable_name, variable_attribute and partition_name
-    grouped_df = df.groupby(["variable_name", "variable_attribute", "partition_name"]).agg(
-        {
-            "partition_attribute": lambda x: list(x),
-            "threshold_value": lambda x: list(x),
-        }
-    )
-
+    # group df by variable_name, variable_attribute and partition_name or by partition name based on function parameter
+    if pattern == "variable_with_attributes_and_partition_with_attributes":
+        grouped_df = df.groupby(["variable_name", "variable_attribute", "partition_name"]).agg(
+            {
+                "partition_attribute": lambda x: list(x),
+                "threshold_value": lambda x: list(x),
+            }
+        )
+    elif pattern == "partition_with_attributes":
+        grouped_df = df.groupby(["partition_name"]).agg(
+            {
+                "partition_attribute": lambda x: list(x),
+                "threshold_value": lambda x: list(x),
+            }
+        )
     # combine partition_attribute and threshold_value into one column and create list of dictionaries using "partition_attribute" and "threshold_value" as keys
     grouped_df["partition_attributes"] = grouped_df.apply(
         lambda x: [
@@ -96,18 +112,31 @@ def change_json_structure(input_data: list, pattern: str) -> dict:
 
     # drop partition_attribute and threshold_value columns
     grouped_df = grouped_df.drop(["partition_attribute", "threshold_value"], axis=1)
-
     # convert grouped_df into list of dictionaries and include variable_name, variable_attribute and partition_name
     grouped_df = grouped_df.reset_index()
-
     grouped_df = grouped_df.to_dict(orient="records")
     grouped_df = {pattern: grouped_df}
 
-    return json.dumps(grouped_df, indent=4)
+    if else_dict:
+        grouped_df[pattern].append(else_dict)
+
+    return grouped_df
+
+def apply_thresholds(input_data: dict, pattern: Literal['variable_with_attributes_and_partition_with_attributes','partition_with_attributes']) -> dict:
+    for schema, tables in input_data.items():
+        for table, columns in tables.items():
+            for column, thresholds in columns.items():
+                for threshold in thresholds:
+                    input_data[schema][table][column][threshold] = change_json_structure(input_data[schema][table][column][threshold], pattern)
+    return json.dumps(input_data, indent=4)
+
+def write_result_to_file(result: dict, file_path: str) -> None:
+    with open(file_path, 'w') as file:
+        file.write(result)
 
 
 if __name__ == "__main__":
     input_data = read_json_file("sample_input.json")
-    print(change_json_structure(input_data["sample_input"], pattern="variable_with_attributes_and_partition_with_attributes"))
-
+    result = apply_thresholds(input_data, 'variable_with_attributes_and_partition_with_attributes')
+    write_result_to_file(result, "sample_output_converted.json")
 
