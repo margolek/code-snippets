@@ -136,7 +136,7 @@ def write_result_to_file(result: dict, file_path: str) -> None:
 
 
 if __name__ == "__main__":
-    input_data = read_json_file("sample_input.json")
+    input_data = read_json_file("./json_samples/sample_input.json")
     result = apply_thresholds(input_data, 'variable_with_attributes_and_partition_with_attributes')
-    write_result_to_file(result, "sample_output_converted.json")
+    write_result_to_file(result, "./json_samples/sample_output_converted.json")
 
