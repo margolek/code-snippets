@@ -1,0 +1,30 @@
+{
+    "sample_input":
+    [
+        {
+            "partition_attribute": 102,
+            "threshold_value": "2.5%",
+            "partition_name": "pre_client_id"
+        },
+        {
+            "partition_attribute": 103,
+            "threshold_value": "3%",
+            "partition_name": "pre_client_id"
+        },
+        {
+            "partition_attribute": 105,
+            "threshold_value": "4.5%",
+            "partition_name": "pre_client_id"
+        },
+        {
+            "partition_attribute": [102, 103, 105],
+            "threshold_value": "4.5%",
+            "partition_name": "pre_client_id"
+        },
+        {
+            "partition_attribute": "ELSE",
+            "threshold_value": "7%",
+            "partition_name": "pre_client_id"
+        }
+    ]
+}

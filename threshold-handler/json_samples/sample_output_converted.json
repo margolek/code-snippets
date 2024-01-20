@@ -1,0 +1,69 @@
+{
+    "schema_1": {
+        "table_1": {
+            "column_1": {
+                "threshold_1": {
+                    "variable_with_attributes_and_partition_with_attributes": [
+                        {
+                            "variable_name": "da",
+                            "variable_attribute": "0",
+                            "partition_name": "pre_client_id",
+                            "partition_attributes": [
+                                {
+                                    "partition_attribute": 102,
+                                    "threshold_value": "2.5%"
+                                }
+                            ]
+                        },
+                        {
+                            "variable_name": "da",
+                            "variable_attribute": "5",
+                            "partition_name": "pre_client_id",
+                            "partition_attributes": [
+                                {
+                                    "partition_attribute": 103,
+                                    "threshold_value": "3%"
+                                },
+                                {
+                                    "partition_attribute": 105,
+                                    "threshold_value": "4.5%"
+                                }
+                            ]
+                        },
+                        {
+                            "ELSE": "7.5%"
+                        }
+                    ]
+                }
+            },
+            "column_2": {
+                "threshold_2": {
+                    "variable_with_attributes_and_partition_with_attributes": [
+                        {
+                            "variable_name": "da",
+                            "variable_attribute": "0",
+                            "partition_name": "pre_client_id",
+                            "partition_attributes": [
+                                {
+                                    "partition_attribute": 107,
+                                    "threshold_value": "6.5%"
+                                }
+                            ]
+                        },
+                        {
+                            "variable_name": "da",
+                            "variable_attribute": "5",
+                            "partition_name": "pre_client_id",
+                            "partition_attributes": [
+                                {
+                                    "partition_attribute": 109,
+                                    "threshold_value": "54%"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
