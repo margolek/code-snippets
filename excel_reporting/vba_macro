@@ -1,0 +1,30 @@
+Sub CreatePivotTable()
+    Dim DataRange As Range
+    Dim PivotTable As PivotTable
+    Dim PivotSheet As Worksheet
+
+    ' Prompt the user to select the data range
+    On Error Resume Next
+    Set DataRange = Application.InputBox("Select a range", Type:=8)
+    On Error GoTo 0
+
+    ' Exit if the user cancels the selection
+    If DataRange Is Nothing Then
+        MsgBox "You did not select a range"
+        Exit Sub
+    End If
+
+    ' Add a new worksheet that will contain the pivot table
+    Set PivotSheet = ThisWorkbook.Sheets.Add
+    PivotSheet.Name = "Pivot"
+
+    ' Create the pivot table
+    Set PivotTable = ThisWorkbook.PivotTableWizard(SourceType:=xlDatabase, SourceData:=DataRange, TableDestination:=PivotSheet.Cells(1, 1))
+
+    ' Set the pivot fields
+    With PivotTable
+        .PivotFields("A").Orientation = xlRowField
+        .PivotFields("B").Orientation = xlColumnField
+        .PivotFields("D").Orientation = xlDataField
+    End With
+End Sub
